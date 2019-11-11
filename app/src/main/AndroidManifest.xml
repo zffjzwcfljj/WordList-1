@@ -9,6 +9,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <provider
+            android:name=".MyContentProvider"
+            android:authorities="com.example.wordlist10.provider"
+            android:enabled="true"
+            android:exported="true"></provider>
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -16,12 +22,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Words"></activity>
-        <activity android:name=".WordsContentActivity"></activity>
-        <activity android:name=".WordNameFragment"></activity>
-        <activity android:name=".WordsContentFragment"></activity>
-        <activity android:name=".MyDatabaseHelper"></activity>
-        <activity android:name=".Help"></activity>
+        <activity android:name=".Words" />
+        <activity android:name=".WordsContentActivity" />
+        <activity android:name=".WordNameFragment" />
+        <activity android:name=".WordsContentFragment" />
+        <activity android:name=".MyDatabaseHelper" />
+        <activity android:name=".Help" />
+        <activity android:name=".MyContentProvider" />
+        <activity android:name=".show" />
     </application>
 
 </manifest>

@@ -2,18 +2,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.calculator30.MainActivity">
-    <item
-        android:id="@+id/help"
-        android:title="帮助区" />
 
     <item
-        android:id="@+id/add"
-        android:title="添加单词" />
-
+        android:id="@+id/change"
+        android:title="修改单词" />
 
     <item
-        android:id="@+id/query"
-        android:title="模糊查询" />
+        android:id="@+id/delete"
+        android:title="删除单词" />
 
 
 </menu>

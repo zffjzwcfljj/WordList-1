@@ -1,7 +1,6 @@
 package com.example.wordlist10;
 
-import android.app.AppComponentFactory;
-import android.content.Context;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,19 +11,22 @@ import androidx.fragment.app.Fragment;
 
 public class WordsContentFragment extends Fragment {
     private View view;
+    private Words words;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        View view = inflater.inflate(R.layout.content,container,false);
+        view = inflater.inflate(R.layout.content,container,false);
         return view;
     }
 
-    public void refresh(String word,String content){
-        View visiblityLayout = view.findViewById(R.id.visibility_layout);
-        visiblityLayout.setVisibility(View.VISIBLE);
+    public void refresh(String word,String meaning,String sample){
+        View visibilityLayout = view.findViewById(R.id.visibility_layout);
+        visibilityLayout.setVisibility(View.VISIBLE);
         TextView  wordName = (TextView) view.findViewById(R.id.word);
-        TextView  wordContent = (TextView) view.findViewById(R.id.word_content);
+        TextView  wordMeaning = (TextView) view.findViewById(R.id.word_meaning);
+        TextView  wordSample = (TextView) view.findViewById(R.id.word_sample);
         wordName.setText(word);
-        wordContent.setText(content);
+        wordMeaning.setText(meaning);
+        wordSample.setText(sample);
     }
 }
