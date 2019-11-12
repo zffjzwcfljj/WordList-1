@@ -52,9 +52,9 @@ public class MyContentProvider extends ContentProvider {
     public String getType(Uri uri) {
         switch (uriMatcher.match(uri)){
             case WORD_DIR:
-                return "vnd.android.cursor.dir/vnd.com.example.wordlist10.word";
+                return "vnd.android.cursor.dir/vnd.com.example.wordlist10.provider.word";
             case WORD_ITEM:
-                return "vnd.android.cursor.item/vnd.com.example.wordlist10.word";
+                return "vnd.android.cursor.item/vnd.com.example.wordlist10.provider.1word";
         }
         return null;
     }
