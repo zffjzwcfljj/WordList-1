@@ -34,17 +34,8 @@ public class MyContentProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int deletedRows = 0;
-        switch (uriMatcher.match(uri)){
-            case WORD_DIR:
-                deletedRows = db.delete("Word",selection,selectionArgs);
-                break;
-            case WORD_ITEM:
-                String wordId = uri.getPathSegments().get(1);
-                deletedRows = db.delete("Word","id = ?",new String[] {wordId});
-                break;
-            default:
-                break;
-        }
+        deletedRows = db.delete("Word",selection,selectionArgs);
+
         return deletedRows;
     }
 
@@ -63,15 +54,8 @@ public class MyContentProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues values) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         Uri uriReturn = null;
-//        switch (uriMatcher.match(uri)){
-//            case WORD_DIR:
-//            case WORD_ITEM:
-//            default:
-//
-//                break;
-//        }
         long newWordId = db.insert("Word",null,values);
-        uriReturn = Uri.parse("content://"+AUTHORITY+"/word/"+newWordId+newWordId);
+        uriReturn = Uri.parse("content://"+AUTHORITY+"/word/"+newWordId);
         return uriReturn;
     }
 
@@ -81,15 +65,8 @@ public class MyContentProvider extends ContentProvider {
                         String[] selectionArgs, String sortOrder) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor = null;
-        switch(uriMatcher.match(uri)){
-            case WORD_DIR:
-                cursor = db.query("Word",projection,selection,selectionArgs,null,null,sortOrder);
-                break;
-            case WORD_ITEM:
-                String wordId=uri.getPathSegments().get(1);
-                cursor = db.query("Word",projection,"id=?",new String[]{wordId},null,null,sortOrder);
-                break;
-        }
+        cursor = db.query("Word",projection,selection,selectionArgs,null,null,sortOrder);
+
         return cursor;
     }
 
@@ -98,17 +75,8 @@ public class MyContentProvider extends ContentProvider {
                       String[] selectionArgs) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int updatedRows = 0;
-        switch (uriMatcher.match(uri)){
-            case WORD_DIR:
-                updatedRows = db.update("Word",values,selection,selectionArgs);
-                break;
-            case WORD_ITEM:
-                String wordId = uri.getPathSegments().get(1);
-                updatedRows = db.update("Word",values,"id = ?",new String[] {wordId});
-                break;
-                default:
-                    break;
-        }
+        updatedRows = db.update("Word",values,selection,selectionArgs);
+
         return updatedRows;
     }
 

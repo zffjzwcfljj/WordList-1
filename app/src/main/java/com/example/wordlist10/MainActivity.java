@@ -33,13 +33,14 @@ public class MainActivity extends AppCompatActivity {
     private WordNameFragment wordNameFragment;
     private Words words;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
         setContentView(R.layout.activity_main);
 
-        dbHelper = new MyDatabaseHelper(this, "WordList.db", null, 1);
+        dbHelper = new MyDatabaseHelper(this, "WordList.db", null, 2);
         dbHelper.getWritableDatabase();
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -55,6 +56,17 @@ public class MainActivity extends AppCompatActivity {
         wordNameFragment.adapter.mWordsList = items;
         wordNameFragment.adapter.notifyDataSetChanged();
 
+        // 1.
+//        OnClickListener temp = new OnClickListener() {
+//            @Override
+//            public void onClick(View view, int pos) {
+//                System.out.println();
+//            }
+//        };
+//
+//        wordNameFragment.adapter.setOnClickListener(temp);
+
+        // 2.
         wordNameFragment.adapter.setOnClickListener(new OnClickListener(){
 
             // 判断横屏竖屏
@@ -76,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         });
+
+
         wordNameFragment.adapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemLongClick(View view, final int pos) {

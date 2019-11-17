@@ -166,6 +166,8 @@ public class WordNameFragment extends Fragment {
 
 }
 
+
+// 代理模式
 interface OnItemClickListener {
     void onItemLongClick(View view, int pos);
 }
