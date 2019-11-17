@@ -9,25 +9,22 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 public class MainActivity extends AppCompatActivity {
     private MyDatabaseHelper dbHelper;
@@ -50,9 +47,6 @@ public class MainActivity extends AppCompatActivity {
         wordNameFragment = (WordNameFragment) fragmentManager.findFragmentById(R.id.wordName_fragment);
         wordNameFragment.dbHelper = dbHelper;
 
-//        WordNameFragment wordnameFragment = new WordNameFragment();
-//        WordNameFragment.WordsAdapter adapter = wordnameFragment.new WordsAdapter(MainActivity.this,R.layout.word_item,wordList);
-//       WordNameFragment.WordsAdapter adapter = new WordNameFragment.WordsAdapter(MainActivity.this,R.layout.word_item,wordList);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setAdapter(wordNameFragment.adapter);
         registerForContextMenu(recyclerView);
@@ -61,6 +55,102 @@ public class MainActivity extends AppCompatActivity {
         wordNameFragment.adapter.mWordsList = items;
         wordNameFragment.adapter.notifyDataSetChanged();
 
+        wordNameFragment.adapter.setOnClickListener(new OnClickListener(){
+
+            // 判断横屏竖屏
+
+            Configuration configuration = MainActivity.this.getResources().getConfiguration();
+
+            boolean isTwoPane = (configuration.orientation == configuration.ORIENTATION_LANDSCAPE ? true : false);
+
+            public void onClick(View v, int pos){
+                Words words = getAll().get(pos);
+                if(isTwoPane){
+                    WordsContentFragment wordsContentFragment = (WordsContentFragment) getSupportFragmentManager().getFragments().get(1);
+                    wordsContentFragment.refresh(words.getWordname(),words.getMeaning(),words.getSample());
+                }else{
+                    WordsContentActivity.actionStart(MainActivity.this,words.getWordname(),words.getMeaning(),words.getSample());
+                }
+
+            }
+
+
+        });
+        wordNameFragment.adapter.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemLongClick(View view, final int pos) {
+
+                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                LayoutInflater inflater = getLayoutInflater();
+                final View viewer = (inflater.inflate(R.layout.add,null));
+
+                PopupMenu popupMenu = new PopupMenu(MainActivity.this, view);
+                popupMenu.getMenuInflater().inflate(R.menu.menu1, popupMenu.getMenu());
+
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        int itemId = menuItem.getItemId();
+                        switch (itemId) {
+                            case R.id.delete:
+                                Words w = getAll().get(pos);
+                                if(w !=null){
+                                    SQLiteDatabase db = dbHelper.getWritableDatabase();
+                                    String sql = "delete from Word where id=" + w.getId();
+                                    SQLiteDatabase db1 = dbHelper.getReadableDatabase();
+                                    db1.execSQL(sql);
+                                    System.out.println(sql);
+                                    Toast.makeText(MainActivity.this,"删除成功",Toast.LENGTH_SHORT).show();
+                                }
+
+                                List<Words> items = getAll();
+                                wordNameFragment.adapter.mWordsList = items;
+                                wordNameFragment.adapter.notifyDataSetChanged();
+                                break;
+                            case R.id.change:
+                                builder.setView(viewer);
+                                builder.setTitle("修改界面");
+                                builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        EditText input1 = (EditText) viewer.findViewById(R.id.edit1);
+                                        EditText input2 = (EditText) viewer.findViewById(R.id.edit2);
+                                        EditText input3 = (EditText) viewer.findViewById(R.id.edit3);
+                                        str1 = input1.getText().toString();
+                                        str2 = input2.getText().toString();
+                                        str3 = input3.getText().toString();
+                                        input1.setText(str1);
+                                        input2.setText(str2);
+                                        input3.setText(str3);
+
+                                        SQLiteDatabase db = dbHelper.getWritableDatabase();
+                                        ContentValues values = new ContentValues();
+                                        values.put("name",str1);
+                                        values.put("Chinese",str2);
+                                        values.put("sentence",str3);
+                                        db.update("Word",values,"name=?",new String[]{str1});
+                                        values.clear();
+                                        Toast.makeText(MainActivity.this,"修改成功",Toast.LENGTH_SHORT).show();
+
+                                        List<Words> items = getAll();
+                                        wordNameFragment.adapter.mWordsList = items;
+                                        wordNameFragment.adapter.notifyDataSetChanged();
+                                    }
+                                });
+                                builder.show();
+                                break;
+
+                        }
+
+                        return false;
+                    }
+                });
+
+                popupMenu.show();
+            }
+
+
+        });
 
     }
 
@@ -69,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Words words = new Words();
         String[] projection = {
+                "id",
                 "name",
                 "Chinese",
                 "sentence",
@@ -92,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
         if(c.moveToFirst()) {
             do {
                 Words word = new Words();
+                word.setId(String.valueOf(c.getString(c.getColumnIndex("id"))));
                 word.setWordname(String.valueOf(c.getString(c.getColumnIndex("name"))));
                 word.setMeaning(String.valueOf(c.getString(c.getColumnIndex("Chinese"))));
                 word.setSample(String.valueOf(c.getString(c.getColumnIndex("sentence"))));
@@ -130,21 +222,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-//    public ArrayList<Map<String, String>> ConvertCursor2List(Cursor c) {
-//        ArrayList<Map<String, String>> res = new ArrayList<>();
-//        Words words = new Words();
-//        while (c.moveToNext()) {
-//            Map<String, String> map = new HashMap<>();
-//
-//            map.put(words.getWordname(), String.valueOf(c.getString(1)));
-//            map.put(words.getMeaning(), String.valueOf(c.getString(2)));
-//            map.put(words.getSample(), String.valueOf(c.getString(3)));
-//            res.add(map);
-//
-//        }return res;
-//    }
-
-
 
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = new MenuInflater(this);
@@ -152,6 +229,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreateOptionsMenu(menu);
         return true;
     }
+
+
 
     public boolean onOptionsItemSelected(MenuItem item){
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -204,10 +283,8 @@ public class MainActivity extends AppCompatActivity {
 
                         ArrayList<Words> items= (ArrayList<Words>) searchUseSql(str1);
                         if(items.size()>0) {
-                            Bundle bundle=new Bundle();
-                            bundle.putSerializable("result",items);
-                            Intent intent = new Intent (MainActivity.this,show.class);
-                            startActivity(intent);
+                            wordNameFragment.adapter.mWordsList = items;
+                            wordNameFragment.adapter.notifyDataSetChanged();
                         }else{
                             Toast.makeText(MainActivity.this,"没有找到",Toast.LENGTH_LONG).show();
                         }
@@ -215,83 +292,15 @@ public class MainActivity extends AppCompatActivity {
                 });
                 builder.show();
                 break;
-        }
-        return true;
-    }
 
-
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        MainActivity.this.getMenuInflater().inflate(R.menu.menu1, menu);
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        LayoutInflater inflater = getLayoutInflater();
-        final View viewer = (inflater.inflate(R.layout.add,null));
-        TextView textName = null;
-        AdapterView.AdapterContextMenuInfo info=null;
-        View itemView=null;
-
-        switch(item.getItemId()){
-
-            case R.id.delete:
-               info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-        //        System.out.println("XXXXXXX"+info.position);
-               itemView=info.targetView;
-                textName = (TextView)itemView.findViewById(R.id.textName);
-                if(textName !=null){
-                     SQLiteDatabase db = dbHelper.getWritableDatabase();
-                    String sql = "delete froe Word where name = +'"+textName+"'";
-                    SQLiteDatabase db1 = dbHelper.getReadableDatabase();
-                    db1.execSQL(sql);
-                    Toast.makeText(MainActivity.this,"删除成功",Toast.LENGTH_SHORT).show();
-                }
-
+            case R.id.refresh:
                 List<Words> items = getAll();
                 wordNameFragment.adapter.mWordsList = items;
                 wordNameFragment.adapter.notifyDataSetChanged();
                 break;
-
-            case R.id.change:
-                builder.setView(viewer);
-                builder.setTitle("修改界面");
-                builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        EditText input1 = (EditText) viewer.findViewById(R.id.edit1);
-                        EditText input2 = (EditText) viewer.findViewById(R.id.edit2);
-                        EditText input3 = (EditText) viewer.findViewById(R.id.edit3);
-                        str1 = input1.getText().toString();
-                        str2 = input2.getText().toString();
-                        str3 = input3.getText().toString();
-                        input1.setText(str1);
-                        input2.setText(str2);
-                        input3.setText(str3);
-
-                        SQLiteDatabase db = dbHelper.getWritableDatabase();
-                        ContentValues values = new ContentValues();
-                        values.put("name",str1);
-                        values.put("Chinese",str2);
-                        values.put("sentence",str3);
-                        db.update("Word",values,"name=?",new String[]{str1});
-                        values.clear();
-                        Toast.makeText(MainActivity.this,"修改成功",Toast.LENGTH_SHORT).show();
-
-                        List<Words> items = getAll();
-                        wordNameFragment.adapter.mWordsList = items;
-                        wordNameFragment.adapter.notifyDataSetChanged();
-                    }
-                });
-                builder.show();
-                break;
-
         }
         return true;
     }
-
 
 
 }

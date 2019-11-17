@@ -23,7 +23,7 @@ public class MyContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate(){
-        dbHelper = new MyDatabaseHelper(getContext(),"Word.db",null,2);
+        dbHelper = new MyDatabaseHelper(getContext(),"WordList.db",null,2);
         return true;
     }
 
@@ -63,15 +63,15 @@ public class MyContentProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues values) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         Uri uriReturn = null;
-        switch (uriMatcher.match(uri)){
-            case WORD_DIR:
-            case WORD_ITEM:
-                long newWordId = db.insert("Word",null,values);
-                uriReturn = Uri.parse("content://"+AUTHORITY+"/word/"+newWordId+newWordId);
-                break;
-             default:
-                 break;
-        }
+//        switch (uriMatcher.match(uri)){
+//            case WORD_DIR:
+//            case WORD_ITEM:
+//            default:
+//
+//                break;
+//        }
+        long newWordId = db.insert("Word",null,values);
+        uriReturn = Uri.parse("content://"+AUTHORITY+"/word/"+newWordId+newWordId);
         return uriReturn;
     }
 

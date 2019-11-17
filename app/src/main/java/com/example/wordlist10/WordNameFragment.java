@@ -5,7 +5,9 @@ import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,9 +45,6 @@ public class WordNameFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-//        List<Map<String, String>> items = getAll();
-
         dbHelper.getWritableDatabase();
     }
 
@@ -57,45 +56,6 @@ public class WordNameFragment extends Fragment {
         return wordsList;
     }
 
-//    public List<Map<String, String>> getAll() {
-//        SQLiteDatabase db = dbHelper.getReadableDatabase();
-//        Words words = new Words();
-//        String[] projection = {
-//                "name",
-//                "Chinese",
-//                "sentence",
-//        };
-//
-//        String sortOrder = words.getWordname() == null ? null : words.getWordname() + "DESC";
-//
-//        Cursor c;
-//        c = db.query(
-//                "Word",
-//                projection,
-//                null,
-//                null,
-//                null,
-//                null,
-//                sortOrder
-//        );
-//        return ConvertCursor2List(c);
-//    }
-
-
-
-//    public ArrayList<Map<String, String>> ConvertCursor2List(Cursor c) {
-//        ArrayList<Map<String, String>> res = new ArrayList<>();
-//        Words words = new Words();
-//        while (c.moveToNext()) {
-//            Map<String, String> map = new HashMap<>();
-//
-//            map.put(words.getWordname(), String.valueOf(c.getString(1)));
-//            map.put(words.getMeaning(), String.valueOf(c.getString(2)));
-//            map.put(words.getSample(), String.valueOf(c.getString(3)));
-//            res.add(map);
-//
-//        }return res;
-//    }
 
 
     @Override
@@ -111,6 +71,9 @@ public class WordNameFragment extends Fragment {
     class WordsAdapter extends RecyclerView.Adapter<WordsAdapter.ViewHolder>{
         public List<Words> mWordsList;
         private int mPosition = -1;
+
+        public OnItemClickListener onItemClickListener;
+        public OnClickListener onClickListener;
 
         public int getPosition() {
             return mPosition;
@@ -145,29 +108,36 @@ public class WordNameFragment extends Fragment {
                 }
             });
 
-            view.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v){
-                    Words words = mWordsList.get(holder.getAdapterPosition());
-                    if(isTwoPane){
-                        WordsContentFragment wordsContentFragment = (WordsContentFragment) getFragmentManager().findFragmentById(R.id.word_content_fragment);
-                        wordsContentFragment.refresh(words.getWordname(),words.getMeaning(),words.getSample());
-                    }else{
-                        WordsContentActivity.actionStart(getActivity(),words.getWordname(),words.getMeaning(),words.getSample());
-                    }
-                }
-            });
             return holder;
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder,int position){
+        public void onBindViewHolder(final ViewHolder holder, final int position){
             // Words model M
             // holder  ReclyverView V
             Words words = mWordsList.get(position);
             holder.wordsNameText.setText(words.getWordname());
             holder.wordsMeaningText.setText(words.getMeaning());
             holder.wordsSampleText.setText(words.getSample());
+
+            if (onItemClickListener != null) {
+                holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        onItemClickListener.onItemLongClick(holder.itemView, position);
+                        return false;
+                    }
+                });
+            }
+
+            if (onClickListener != null){
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onClickListener.onClick(view, position);
+                    }
+                });
+            }
         }
 
         @Override
@@ -175,8 +145,31 @@ public class WordNameFragment extends Fragment {
             return mWordsList.size();
         }
 
+        public OnItemClickListener getOnItemClickListener() {
+            return onItemClickListener;
+        }
+
+        public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+            this.onItemClickListener = onItemClickListener;
+        }
+
+        public OnClickListener getOnClickListener() {
+            return onClickListener;
+        }
+
+        public void setOnClickListener(OnClickListener onClickListener) {
+            this.onClickListener = onClickListener;
+        }
     }
 
 
 
+}
+
+interface OnItemClickListener {
+    void onItemLongClick(View view, int pos);
+}
+
+interface OnClickListener {
+    void onClick(View view, int pos);
 }

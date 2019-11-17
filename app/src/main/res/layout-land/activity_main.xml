@@ -26,27 +26,26 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/wordname"
-            android:text="apple"
             android:textSize="35dp"
             android:paddingLeft="50dp"
             android:paddingRight="10dp"
             android:paddingTop="40dp"/>
 
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/wordtran"
-            android:text="apple"
             android:textSize="25dp"
             android:paddingLeft="50dp"
             android:paddingRight="10dp"
             android:paddingTop="110dp" />
 
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/wordsen"
-            android:text="apple is red"
             android:textSize="25dp"
             android:paddingLeft="50dp"
             android:paddingRight="10dp"

@@ -29,7 +29,6 @@
         <activity android:name=".MyDatabaseHelper" />
         <activity android:name=".Help" />
         <activity android:name=".MyContentProvider" />
-        <activity android:name=".show" />
     </application>
 
 </manifest>
